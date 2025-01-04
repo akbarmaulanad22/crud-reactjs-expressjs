@@ -1,28 +1,28 @@
-const { json } = require('express');
-const dbConnection = require('../config/Database');
+const { json } = require( 'express' );
+const dbConnection = require( '../config/Database' );
 
 
-exports.getPenelitianDokumen = (req, res) => {
+exports.getPenelitianDokumen = ( req, res ) => {
     const querystr = "SELECT * FROM penelitian_dokumen";
-    dbConnection.query(querystr, (err, results) => {
-        if (err) {
-            res.status(500).json({
+    dbConnection.query( querystr, ( err, results ) => {
+        if ( err ) {
+            res.status( 500 ).json( {
                 "success": false,
                 "message": "Gagal menampilkan data",
                 "data": []
-            });
-            console.error('Error', err);
+            } );
+            console.error( 'Error', err );
         } else {
-            res.status(200).json({
+            res.status( 200 ).json( {
                 "success": true,
                 "message": "Success menampilkan data",
                 "data": results
-            });
+            } );
         }
-    });
+    } );
 };
 
-exports.insertPenelitianDokumen = (req, res) => {
+exports.insertPenelitianDokumen = ( req, res ) => {
     const param = req.body;
     const kd_penelitian = param.kd_penelitian;
     const upload_proposal = param.upload_proposal;
@@ -42,30 +42,69 @@ exports.insertPenelitianDokumen = (req, res) => {
     const status_laporan_penelitian = param.status_laporan_penelitian;
     const tgl_status_laporan_penelitian = param.tgl_status_laporan_penelitian;
 
-    const querystr = "INSERT INTO penelitian_dokumen (kd_penelitian, upload_proposal, tgl_upload_proposal, status_proposal, tgl_status_proposal, upload_surat_tugas, tgl_upload_surat_tugas, upload_penelitian, tgl_upload_penelitian, status_penelitian, tgl_status_penelitian,upload_sertifikat, tgl_upload_sertifikat, upload_laporan_penelitian, tgl_upload_laporan_penelitian, status_laporan_penelitian, tgl_status_laporan_penelitian ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    const values = [kd_penelitian, upload_proposal, tgl_upload_proposal, status_proposal, tgl_status_proposal, upload_surat_tugas, tgl_upload_surat_tugas, upload_penelitian, tgl_upload_penelitian, status_penelitian, tgl_status_penelitian, upload_sertifikat, tgl_upload_sertifikat, upload_laporan_penelitian, tgl_upload_laporan_penelitian, status_laporan_penelitian, tgl_status_laporan_penelitian];
+    const querystr = `
+        INSERT INTO penelitian_dokumen (
+            kd_penelitian, 
+            upload_proposal, 
+            tgl_upload_proposal, 
+            status_proposal, 
+            tgl_status_proposal, 
+            upload_surat_tugas, 
+            tgl_upload_surat_tugas, 
+            upload_penelitian, 
+            tgl_upload_penelitian, 
+            status_penelitian, 
+            tgl_status_penelitian,
+            upload_sertifikat, 
+            tgl_upload_sertifikat, 
+            upload_laporan_penelitian, 
+            tgl_upload_laporan_penelitian, 
+            status_laporan_penelitian, 
+            tgl_status_laporan_penelitian 
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
 
-    dbConnection.query(querystr, values, (err, results) => {
-        if (err) {
-            console.error('Gagal', "menambahkan data");
-            res.status(500).json({
+    const values = [
+        kd_penelitian,
+        upload_proposal,
+        tgl_upload_proposal,
+        status_proposal,
+        tgl_status_proposal,
+        upload_surat_tugas,
+        tgl_upload_surat_tugas,
+        upload_penelitian,
+        tgl_upload_penelitian,
+        status_penelitian,
+        tgl_status_penelitian,
+        upload_sertifikat,
+        tgl_upload_sertifikat,
+        upload_laporan_penelitian,
+        tgl_upload_laporan_penelitian,
+        status_laporan_penelitian,
+        tgl_status_laporan_penelitian
+    ];
+
+    dbConnection.query( querystr, values, ( err, results ) => {
+        if ( err ) {
+            console.error( 'Gagal', "menambahkan data" );
+            res.status( 500 ).json( {
                 "success": false,
                 "message": "Gagal menambahkan data",
                 //"data": results
-            });
+            } );
         } else {
-            console.log('Succes', "menambahkan data");
-            res.status(200).json({
+            console.log( 'Succes', "menambahkan data" );
+            res.status( 200 ).json( {
                 "success": true,
                 "message": "Success menambahkan data",
                 //"data": results
-            });
+            } );
         }
-    })
+    } )
 };
 
 
-exports.updatePenelitianDokumen = (req, res) => {
+exports.updatePenelitianDokumen = ( req, res ) => {
     const param = req.body;
     const kd_penelitian_dokumen = param.kd_penelitian_dokumen;
     const kd_penelitian = param.kd_penelitian;
@@ -86,75 +125,108 @@ exports.updatePenelitianDokumen = (req, res) => {
     const status_laporan_penelitian = param.status_laporan_penelitian;
     const tgl_status_laporan_penelitian = param.tgl_status_laporan_penelitian;
 
-    const querystr = "UPDATE penelitian_dokumen SET kd_penelitian = ?, upload_proposal = ?, tgl_upload_proposal, status_proposal = ?, tgl_status_proposal = ?, upload_surat_tugas = ?, tgl_upload_surat_tugas = ?, upload_penelitian = ?, tgl_upload_penelitian = ?, status_penelitian = ?, tgl_status_penelitian = ?, upload_sertifikat = ?, tgl_upload_sertifikat = ?, upload_laporan_penelitian = ?, tgl_upload_laporan_penelitian = ?, status_laporan_penelitian = ?, tgl_status_laporan_penelitian = ?  WHERE kd_penelitian_dokumen = ?";
-    const values = [kd_penelitian, upload_proposal, tgl_upload_proposal, status_proposal, tgl_status_proposal, upload_surat_tugas, tgl_upload_surat_tugas, upload_penelitian, tgl_upload_penelitian, status_penelitian, tgl_status_penelitian, upload_sertifikat, tgl_upload_sertifikat, upload_laporan_penelitian, tgl_upload_laporan_penelitian, status_laporan_penelitian, tgl_status_laporan_penelitian, kd_penelitian_dokumen];
+    const querystr = `
+
+        UPDATE penelitian_dokumen SET 
+        kd_penelitian = ?, 
+        upload_proposal = ?, 
+        tgl_upload_proposal = ?, 
+        status_proposal = ?, 
+        tgl_status_proposal = ?, 
+        upload_surat_tugas = ?, 
+        tgl_upload_surat_tugas = ?, 
+        upload_penelitian = ?, 
+        tgl_upload_penelitian = ?, 
+        status_penelitian = ?, 
+        tgl_status_penelitian = ?, 
+        upload_sertifikat = ?, 
+        tgl_upload_sertifikat = ?, 
+        upload_laporan_penelitian = ?, 
+        tgl_upload_laporan_penelitian = ?, 
+        status_laporan_penelitian = ?, 
+        tgl_status_laporan_penelitian = ? 
+        WHERE kd_penelitian_dokumen = ?
     
-    dbConnection.query(querystr, values, (err, results) => {
-        if (err) {
-            console.error('Gagal', "mengupdate data");
-            res.status(500).json({
+    `;
+    const values = [
+        kd_penelitian,
+        upload_proposal,
+        tgl_upload_proposal,
+        status_proposal,
+        tgl_status_proposal,
+        upload_surat_tugas,
+        tgl_upload_surat_tugas,
+        upload_penelitian,
+        tgl_upload_penelitian,
+        status_penelitian,
+        tgl_status_penelitian,
+        upload_sertifikat,
+        tgl_upload_sertifikat,
+        upload_laporan_penelitian,
+        tgl_upload_laporan_penelitian,
+        status_laporan_penelitian,
+        tgl_status_laporan_penelitian,
+        kd_penelitian_dokumen
+    ];
+
+    dbConnection.query( querystr, values, ( err, results ) => {
+        if ( err ) {
+            console.error( 'Gagal', "mengupdate data" );
+            return res.status( 500 ).json( {
                 "success": false,
                 "message": "Gagal mengupdate data",
                 //"data": results
-            });
-        } else {
-
-            if(results.changedRows > 0)
-            {
-                console.log('Berhasil', "mengupdate data");
-                res.status(200).json({
-                    "success": true,
-                    "message": "Berhasil mengupdate data",
-                });
-            }
-            else
-            {
-                console.log('Gagal', "Data tidak ditemukan");
-                res.status(400).json({
-                    "success": false,
-                    "message": "Data tidak ditemukan",
-                });
-            }
+            } );
         }
-    })
+
+        if ( results.changedRows > 0 ) {
+            console.log( 'Berhasil', "mengupdate data" );
+            return res.status( 200 ).json( {
+                "success": true,
+                "message": "Berhasil mengupdate data",
+            } );
+        }
+
+        console.log( 'Gagal', "Data tidak ditemukan" );
+        return res.status( 400 ).json( {
+            "success": false,
+            "message": "Data tidak ditemukan",
+        } );
+    } )
 };
 
 
-exports.deletePenelitianDokumen = (req, res) => {
+exports.deletePenelitianDokumen = ( req, res ) => {
     const param = req.body;
     const kd_penelitian_dokumen = param.kd_penelitian_dokumen;
 
     const querystr = "DELETE FROM penelitian_dokumen WHERE kd_penelitian_dokumen = ?";
     const values = kd_penelitian_dokumen;
 
-    dbConnection.query(querystr, values, (err, results) => {
-        if (err) {
-            console.error('Gagal', "menghapus data");
-            res.status(500).json({
+    dbConnection.query( querystr, values, ( err, results ) => {
+        if ( err ) {
+            console.error( 'Gagal', "menghapus data" );
+            return res.status( 500 ).json( {
                 "success": false,
                 "message": "Gagal menghapus data",
                 //"data": results
-            });
-        } else {
-
-            if(results.affectedRows > 0)
-            {
-                console.log('Berhasil', "menghapus data");
-                res.status(200).json({
-                    "success": true,
-                    "message": "Berhasil menghapus data",
-                });
-            }
-            else
-            {
-                console.log('Gagal', "menghapus data");
-                res.status(400).json({
-                    "success": false,
-                    "message": "Data tidak ditemukan",
-                });
-            }
+            } );
         }
-    })
+
+        if ( results.affectedRows > 0 ) {
+            console.log( 'Berhasil', "menghapus data" );
+            return res.status( 200 ).json( {
+                "success": true,
+                "message": "Berhasil menghapus data",
+            } );
+        }
+
+        console.log( 'Gagal', "menghapus data" );
+        return res.status( 400 ).json( {
+            "success": false,
+            "message": "Data tidak ditemukan",
+        } );
+    } )
 };
 
 
