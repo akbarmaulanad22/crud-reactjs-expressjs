@@ -1,36 +1,23 @@
 import { useState, useEffect } from 'react'
-import useDosen from '../../Hooks/useDosen'
-import { BASE_URL } from '../../Services/endpoints'
+import useApi from '../../Hooks/useApi'
+import endpoints from '../../Services/endpoints'
 
 const Dosen = () => {
-  const [dosen, setDosen] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const { getDosen, createDosen, updateDosen, deleteDosen } = useDosen()
-
-  useEffect(() => {
-    fetchDosen()
-  }, [])
+  const [ dosen, setDosen ] = useState( [] )
+  const { get, error, loading } = useApi()
 
   const fetchDosen = async () => {
-    try {
-      setLoading(true)
-      const response = await getDosen()
-      if (response.status === 'success') {
-        setDosen(response.data)
-      } else {
-        setError('Failed to fetch data')
-      }
-    } catch (error) {
-      setError(error.message)
-      console.error('Error fetching dosen:', error)
-    } finally {
-      setLoading(false)
-    }
+    const response = await get( endpoints.DOSEN.GET )
+
+    setDosen( response.data )
   }
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>Error: {error}</div>
+  useEffect( () => {
+    fetchDosen()
+  }, [] )
+
+  if ( loading ) return <div>Loading...</div>
+  if ( error ) return <div>Error: { error }</div>
 
   return (
     <div>
@@ -58,27 +45,26 @@ const Dosen = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {dosen.map((item) => (
-                <tr key={item.kd_dosen}>
-                  <td className="px-6 py-4 whitespace-nowrap">{item.nip || '-'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{item.nidn}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{item.nuptk || '-'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{item.nama}</td>
+              { dosen.map( ( item ) => (
+                <tr key={ item.kd_dosen }>
+                  <td className="px-6 py-4 whitespace-nowrap">{ item.nip || '-' }</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{ item.nidn }</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{ item.nuptk || '-' }</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{ item.nama }</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {item.tgl_lahir ? new Date(item.tgl_lahir).toLocaleDateString('id-ID') : '-'}
+                    { item.tgl_lahir ? new Date( item.tgl_lahir ).toLocaleDateString( 'id-ID' ) : '-' }
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {item.kelamin === 'l' ? 'Laki-laki' : 'Perempuan'}
+                    { item.kelamin === 'l' ? 'Laki-laki' : 'Perempuan' }
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{item.hp || '-'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{item.email || '-'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{ item.hp || '-' }</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{ item.email || '-' }</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      item.status === 1 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {item.status === 1 ? 'Aktif' : 'Tidak Aktif'}
+                    <span className={ `px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${item.status === 1
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                      }` }>
+                      { item.status === 1 ? 'Aktif' : 'Tidak Aktif' }
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -86,7 +72,7 @@ const Dosen = () => {
                     <button className="text-red-600 hover:text-red-900">Hapus</button>
                   </td>
                 </tr>
-              ))}
+              ) ) }
             </tbody>
           </table>
         </div>
