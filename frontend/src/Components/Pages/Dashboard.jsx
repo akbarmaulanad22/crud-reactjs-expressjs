@@ -1,4 +1,55 @@
+import { useState, useEffect } from 'react';
+import useApi from '../../Hooks/useApi';
+import endpoints from '../../Services/endpoints';
+
 const Dashboard = () => {
+  const [totalDosen, setTotalDosen] = useState(0);
+  const [totalMahasiswa, setTotalMahasiswa] = useState(0);
+  const [totalPenelitian, setTotalPenelitian] = useState(0);
+  const [totalDokumen, setTotalDokumen] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const { get } = useApi();
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      // Fetch semua data secara parallel
+      const [dosenResponse, mahasiswaResponse, penelitianResponse, dokumenResponse] = await Promise.all([
+        get(endpoints.DOSEN.GET),
+        get(endpoints.MAHASISWA.GET),
+        get(endpoints.PENELITIAN.GET),
+        get(endpoints.DOKUMEN.GET)
+      ]);
+
+      // Hitung total dosen aktif
+      const dosenAktif = dosenResponse.data.filter(dosen => dosen.status === 1).length;
+      setTotalDosen(dosenAktif);
+
+      // Hitung total mahasiswa aktif
+      const mahasiswaAktif = mahasiswaResponse.data.filter(mahasiswa => mahasiswa.status === 1).length;
+      setTotalMahasiswa(mahasiswaAktif);
+
+      // Hitung total penelitian aktif
+      const penelitianAktif = penelitianResponse.data.filter(penelitian => penelitian.status === 1).length;
+      setTotalPenelitian(penelitianAktif);
+
+      // Set total dokumen
+      setTotalDokumen(dokumenResponse.data.length);
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {/* Card 1 - Total Dosen */}
@@ -11,7 +62,7 @@ const Dashboard = () => {
             </svg>
           </div>
         </div>
-        <p className="text-3xl font-bold text-gray-900">0</p>
+        <p className="text-3xl font-bold text-gray-900">{totalDosen}</p>
         <p className="text-sm text-gray-600 mt-2">Total dosen aktif</p>
       </div>
 
@@ -25,7 +76,7 @@ const Dashboard = () => {
             </svg>
           </div>
         </div>
-        <p className="text-3xl font-bold text-gray-900">0</p>
+        <p className="text-3xl font-bold text-gray-900">{totalMahasiswa}</p>
         <p className="text-sm text-gray-600 mt-2">Total mahasiswa aktif</p>
       </div>
 
@@ -39,7 +90,7 @@ const Dashboard = () => {
             </svg>
           </div>
         </div>
-        <p className="text-3xl font-bold text-gray-900">0</p>
+        <p className="text-3xl font-bold text-gray-900">{totalPenelitian}</p>
         <p className="text-sm text-gray-600 mt-2">Total penelitian aktif</p>
       </div>
 
@@ -53,11 +104,11 @@ const Dashboard = () => {
             </svg>
           </div>
         </div>
-        <p className="text-3xl font-bold text-gray-900">0</p>
+        <p className="text-3xl font-bold text-gray-900">{totalDokumen}</p>
         <p className="text-sm text-gray-600 mt-2">Total dokumen penelitian</p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;

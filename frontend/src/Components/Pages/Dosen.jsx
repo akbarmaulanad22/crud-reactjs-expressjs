@@ -3,21 +3,24 @@ import useApi from '../../Hooks/useApi'
 import endpoints from '../../Services/endpoints'
 
 const Dosen = () => {
-  const [ dosen, setDosen ] = useState( [] )
+  const [dosen, setDosen] = useState([])
   const { get, error, loading } = useApi()
 
-  const fetchDosen = async () => {
-    const response = await get( endpoints.DOSEN.GET )
+  useEffect(() => {
+    fetchDosen()
+  }, []);
 
-    setDosen( response.data )
+  const fetchDosen = async () => {
+    try {
+      const response = await get(endpoints.DOSEN.GET)
+      setDosen(response.data)
+    } catch (error) {
+      console.error('Error fetching dosen:', error)
+    }
   }
 
-  useEffect( () => {
-    fetchDosen()
-  }, [] )
-
-  if ( loading ) return <div>Loading...</div>
-  if ( error ) return <div>Error: { error }</div>
+  if (loading) return <div>Loading...</div>
+  if (error) return <div>Error: {error}</div>
 
   return (
     <div>
@@ -45,34 +48,43 @@ const Dosen = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              { dosen.map( ( item ) => (
-                <tr key={ item.kd_dosen }>
-                  <td className="px-6 py-4 whitespace-nowrap">{ item.nip || '-' }</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{ item.nidn }</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{ item.nuptk || '-' }</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{ item.nama }</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    { item.tgl_lahir ? new Date( item.tgl_lahir ).toLocaleDateString( 'id-ID' ) : '-' }
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    { item.kelamin === 'l' ? 'Laki-laki' : 'Perempuan' }
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{ item.hp || '-' }</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{ item.email || '-' }</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={ `px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${item.status === 1
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                      }` }>
-                      { item.status === 1 ? 'Aktif' : 'Tidak Aktif' }
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="text-indigo-600 hover:text-indigo-900 mr-2">Edit</button>
-                    <button className="text-red-600 hover:text-red-900">Hapus</button>
+              {dosen.length === 0 ? (
+                <tr>
+                  <td colSpan="10" className="px-6 py-4 text-center text-gray-500">
+                    Tidak ada data dosen
                   </td>
                 </tr>
-              ) ) }
+              ) : (
+                dosen.map((item) => (
+                  <tr key={item.kd_dosen}>
+                    <td className="px-6 py-4 whitespace-nowrap">{item.nip || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{item.nidn}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{item.nuptk || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{item.nama}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {item.tgl_lahir ? new Date(item.tgl_lahir).toLocaleDateString('id-ID') : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {item.kelamin === 'l' ? 'Laki-laki' : 'Perempuan'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">{item.hp || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{item.email || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        item.status === 1
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {item.status === 1 ? 'Aktif' : 'Tidak Aktif'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button className="text-indigo-600 hover:text-indigo-900 mr-2">Edit</button>
+                      <button className="text-red-600 hover:text-red-900">Hapus</button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
