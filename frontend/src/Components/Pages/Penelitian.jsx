@@ -7,8 +7,20 @@ const Penelitian = () => {
   const [dosenList, setDosenList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { getPenelitian, deletePenelitian } = usePenelitian();
+  const { getPenelitian, deletePenelitian, addPenelitian, updatePenelitian } = usePenelitian();
   const { getDosen } = useDosen();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPenelitian, setSelectedPenelitian] = useState(null);
+  const [formData, setFormData] = useState({
+    kd_penelitian: '',
+    thn_akademik: '',
+    judul: '',
+    lokasi: '',
+    tanggal_mulai: '',
+    tanggal_akhir: '',
+    kd_dosen: '',
+    status: '1'
+  });
 
   useEffect(() => {
     fetchData();
@@ -60,6 +72,46 @@ const Penelitian = () => {
     });
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (selectedPenelitian) {
+        // Edit existing penelitian
+        await updatePenelitian(selectedPenelitian.kd_penelitian, formData);
+      } else {
+        // Add new penelitian
+        await addPenelitian(formData);
+      }
+      setIsModalOpen(false);
+      resetForm();
+      fetchData();
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      kd_penelitian: '',
+      thn_akademik: '',
+      judul: '',
+      lokasi: '',
+      tanggal_mulai: '',
+      tanggal_akhir: '',
+      kd_dosen: '',
+      status: '1'
+    });
+    setSelectedPenelitian(null);
+  };
+
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
@@ -72,7 +124,7 @@ const Penelitian = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Daftar Penelitian</h2>
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => setIsModalOpen(true)}>
           Tambah Penelitian
         </button>
       </div>
@@ -122,6 +174,19 @@ const Penelitian = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <button 
                         className="text-indigo-600 hover:text-indigo-900 mr-3"
+                        onClick={() => {
+                          setSelectedPenelitian(penelitian);
+                          setFormData({
+                            kd_penelitian: penelitian.kd_penelitian,
+                            thn_akademik: penelitian.thn_akademik,
+                            judul: penelitian.judul,
+                            lokasi: penelitian.lokasi,
+                            tanggal_mulai: penelitian.tanggal_mulai,
+                            tanggal_akhir: penelitian.tanggal_akhir,
+                            kd_dosen: penelitian.kd_dosen,
+                            status: penelitian.status.toString()
+                          });
+                        }}
                       >
                         Edit
                       </button>
@@ -139,6 +204,145 @@ const Penelitian = () => {
           </table>
         </div>
       </div>
+
+      {/* Modal Form */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">
+                {selectedPenelitian ? 'Edit Penelitian' : 'Tambah Penelitian'}
+              </h3>
+              <button
+                onClick={() => {
+                  setIsModalOpen(false);
+                  resetForm();
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Kode Penelitian</label>
+                  <input
+                    type="text"
+                    name="kd_penelitian"
+                    value={formData.kd_penelitian}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tahun Akademik</label>
+                  <input
+                    type="text"
+                    name="thn_akademik"
+                    value={formData.thn_akademik}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Judul</label>
+                  <input
+                    type="text"
+                    name="judul"
+                    value={formData.judul}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Lokasi</label>
+                  <input
+                    type="text"
+                    name="lokasi"
+                    value={formData.lokasi}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tanggal Mulai</label>
+                  <input
+                    type="date"
+                    name="tanggal_mulai"
+                    value={formData.tanggal_mulai}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tanggal Akhir</label>
+                  <input
+                    type="date"
+                    name="tanggal_akhir"
+                    value={formData.tanggal_akhir}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Dosen</label>
+                  <select
+                    name="kd_dosen"
+                    value={formData.kd_dosen}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Pilih Dosen</option>
+                    {dosenList.map((dosen) => (
+                      <option key={dosen.kd_dosen} value={dosen.kd_dosen}>
+                        {dosen.nama}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Status</label>
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="1">Aktif</option>
+                    <option value="0">Tidak Aktif</option>
+                  </select>
+                </div>
+
+                <div className="flex justify-end pt-4">
+                  <button
+                    type="submit"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >
+                    {selectedPenelitian ? 'Update' : 'Simpan'}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
